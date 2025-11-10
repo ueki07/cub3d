@@ -6,8 +6,6 @@ LIBSUPP = -lm minilibx/libmlx.a
 
 INCLUDE = -Iminilibx -Ilibft -Iincludes
 
-#INCLUDE = minilibx/mlx.h libft/libft.h
-
 SRC = sources/main.c sources/parsing/param.c \
 	sources/parsing/bytes.c sources/parsing/check_map.c \
 	sources/parsing/handle_map.c sources/utils.c \
@@ -17,18 +15,35 @@ SRC = sources/main.c sources/parsing/param.c \
 
 SRCDIR = parsing render
 
+MLX_GIT = https://github.com/42paris/minilibx-linux.git
+MLXDIR = minilibx-linux
+MLX = $(MLXDIR)/libmlx.a
+
 OBJDIR = build
 
 OBJS = $(SRC:%.c=$(OBJDIR)/%.o)
-#error in objs rule because if equal to src and not (ex) .o file with same name
 
 LIBFT = libft/libft.a
 
 NAME = cub3d
 
-MINILIBX = minilibx/libmlx.a
+RED = \033[1;31m
+GREEN = \033[1;32m
+YELLOW = \033[1;33m
+DEFAULT = \033[0m
 
-all: $(MINILIBX) $(LIBFT) $(NAME)
+all: $(MLX) $(LIBFT) $(NAME)
+
+$(MLX):
+	@if [ ! -d "$(MLXDIR)" ]; then \
+		echo "$(YELLOW)Cloning MiniLibX...$(DEFAULT)" ; \
+		git clone $(MLX_GIT) $(MLXDIR) ; \
+	else \
+		echo "$(GREEN)MiniLibX directory already exists.$(DEFAULT)" ; \
+	fi
+	@echo "$(YELLOW)Compiling MiniLibX...$(DEFAULT)"
+	@$(MAKE) -C $(MLXDIR)
+	@echo "$(GREEN)MiniLibX compiled!$(DEFAULT)"
 
 $(NAME): $(OBJS)
 	$(CC) $(CFLAGS) $(OBJS) -o $(NAME) $(LIBFT) $(LIBSUPP) -lXext -lX11 -lm
@@ -40,18 +55,19 @@ $(OBJDIR)/%.o: %.c
 $(LIBFT):
 	@$(MAKE) -s -C libft
 
-$(MINILIBX):
-	@$(MAKE) -s -C minilibx
-
 clean:
 	rm -rf $(OBJDIR)
 	@$(MAKE) -s -C libft clean
-	@$(MAKE) -s -C minilibx clean
+	@if [ -d "$(MLXDIR)" ]; then $(MAKE) -C $(MLXDIR) clean; fi
+	@echo "$(YELLOW)object files deleted.$(DEFAULT)"
 
 fclean: clean
-	rm -f $(NAME)
+	$(RM) $(NAME)
+	$(RM) -r $(MLXDIR)
+	@echo "$(RED)all files deleted.$(DEFAULT)"
 	@$(MAKE) -s -C libft fclean
 
 re: fclean all
 
 .PHONY: all clean fclean re
+
