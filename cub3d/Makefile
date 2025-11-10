@@ -2,7 +2,7 @@ CC = cc
 
 CFLAGS = -Wall -Wextra -Werror -g
 
-LIBSUPP = -lm minilibx/libmlx.a
+LIBSUPP = -lm minilibx-linux/libmlx.a
 
 INCLUDE = -Iminilibx -Ilibft -Iincludes
 
